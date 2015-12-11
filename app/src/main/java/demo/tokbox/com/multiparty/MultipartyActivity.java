@@ -7,6 +7,7 @@ import android.text.style.SubscriptSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.opentok.android.BaseVideoRenderer;
@@ -21,15 +22,16 @@ import java.util.ArrayList;
 
 import demo.tokbox.com.multiparty.generated.Configuration;
 
-public class multiparty
+public class MultipartyActivity
         extends Activity
         implements  View.OnClickListener,
                     Session.SessionListener,
                     Publisher.PublisherListener {
-    private static final String         LOGTAG = "[multiparty]";
+    private static final String         LOGTAG = "[MultipartyActivity]";
     private String                      _id;
     private Assets                      _assets;
     private ArrayList<RelativeLayout>   _subsrciberContainterLst;
+    private ArrayList<ProgressBar>      _subscriberSpinnerLst;
     private RelativeLayout              _publisherContainer;
     private Button                      _endCallBtn;
     private Session                     _session;
@@ -49,6 +51,11 @@ public class multiparty
         _subsrciberContainterLst.add((RelativeLayout)findViewById(R.id.view_line2));
         _subsrciberContainterLst.add((RelativeLayout)findViewById(R.id.view_line3));
         _subsrciberContainterLst.add((RelativeLayout)findViewById(R.id.view_line4));
+        _subscriberSpinnerLst = new ArrayList<>();
+        _subscriberSpinnerLst.add((ProgressBar)findViewById(R.id.line1_spinner));
+        _subscriberSpinnerLst.add((ProgressBar)findViewById(R.id.line2_spinner));
+        _subscriberSpinnerLst.add((ProgressBar)findViewById(R.id.line3_spinner));
+        _subscriberSpinnerLst.add((ProgressBar)findViewById(R.id.line4_spinner));
         _publisherContainer = (RelativeLayout)findViewById(R.id.view_publisher);
         _endCallBtn = (Button)findViewById(R.id.btn_endcall);
         _subscriberLst = new ArrayList<>();
@@ -87,7 +94,7 @@ public class multiparty
     @Override
     public void onConnected(Session session) {
         Log.i(LOGTAG, "Connected to OpenTok Session");
-        _publisher = new Publisher(this, "multiparty-demo: publisher-" + _id);
+        _publisher = new Publisher(this, "MultipartyActivity-demo: publisher-" + _id);
         _publisher.setPublisherListener(this);
         _setupPublisherView(_publisher);
         _session.publish(_publisher);
@@ -106,7 +113,7 @@ public class multiparty
     @Override
     public void onStreamReceived(Session session, Stream stream) {
         _streamLst.add(stream);
-        // TODO: _subscribeStream();
+        _subscribeStream(stream);
     }
 
     @Override
@@ -158,8 +165,20 @@ public class multiparty
         _publisherContainer.addView(publisher.getView(), layoutParams);
     }
 
+    private void _subscribeStream(Stream stream) {
+        Subscriber subscriber = new Subscriber(this, stream);
+        subscriber.setVideoListener(this);
+        _session.subscribe(subscriber);
+        _subscriberLst.add(subscriber);
+        // put up spinner
+        ProgressBar spinner = _subscriberSpinnerLst.get(_subscriberLst.size() - 1);
+        spinner.setVisibility(View.VISIBLE);
+    }
+
     private int _dpToPx(int dp) {
-        double screenDensity = this.getResources().getDisplayMetrics().density;
+        double screenDensity = getResources().getDisplayMetrics().density;
         return (int) (screenDensity * (double) dp);
     }
+
+
 }

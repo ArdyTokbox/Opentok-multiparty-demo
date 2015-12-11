@@ -20,16 +20,43 @@
         android:layout_above="@+id/separator"
         android:id="@+id/tableLayout">
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorSeparator" />
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/view_line1" />
+                android:id="@+id/view_line1">
+                <ProgressBar
+                    android:id="@+id/line1_spinner"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:indeterminate="false"
+                    android:visibility="gone"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:text="Line 1" />
+            </RelativeLayout>
         </TableRow>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorSeparator" />
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -37,9 +64,32 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/view_line2" />
+                android:id="@+id/view_line2">
+                <ProgressBar
+                    android:id="@+id/line2_spinner"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:indeterminate="false"
+                    android:visibility="gone"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:text="Line 2" />
+            </RelativeLayout>
         </TableRow>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorSeparator" />
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -47,9 +97,32 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/view_line3" />
+                android:id="@+id/view_line3" >
+                <ProgressBar
+                    android:id="@+id/line3_spinner"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:indeterminate="false"
+                    android:visibility="gone"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:text="Line 3" />
+            </RelativeLayout>
         </TableRow>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorSeparator" />
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -57,9 +130,31 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/view_line4" />
+                android:id="@+id/view_line4" >
+                <ProgressBar
+                    android:id="@+id/line4_spinner"
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:indeterminate="false"
+                    android:visibility="gone"
+                    />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:text="Line 4" />
+            </RelativeLayout>
         </TableRow>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorSeparator" />
+
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -67,7 +162,15 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/view_publisher" />
+                android:id="@+id/view_publisher" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:text="Your Camera View" />
+            </RelativeLayout>
         </TableRow>
 
     </TableLayout>
