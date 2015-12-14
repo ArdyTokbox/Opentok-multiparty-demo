@@ -183,6 +183,7 @@ public class MultipartyActivity
         for (SubscriberContainer subscriber: _subsrciberLst) {
             if (null == subscriber.getStream()) {
                 _subscribeStream(subscriber, stream);
+                break;
             }
         }
 
@@ -191,7 +192,7 @@ public class MultipartyActivity
     @Override
     public void onStreamDropped(Session session, Stream stream) {
         for (SubscriberContainer subscriber: _subsrciberLst) {
-            if (subscriber.getStream().equals(stream)) {
+            if (null != subscriber.getStream() && subscriber.getStream().equals(stream)) {
                 _unsubscribeStream(subscriber);
             }
         }
@@ -220,7 +221,8 @@ public class MultipartyActivity
     @Override
     public void onVideoDataReceived(SubscriberKit subscriberKit) {
         for (SubscriberContainer subscriber: _subsrciberLst) {
-            if (subscriber.getStream().equals(subscriberKit.getStream())) {
+            if (null != subscriber.getStream() &&
+                    subscriber.getStream().equals(subscriberKit.getStream())) {
                 _setupSubscriberView(subscriber);
             }
         }
