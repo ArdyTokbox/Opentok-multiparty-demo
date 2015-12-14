@@ -17,6 +17,7 @@ import com.opentok.android.PublisherKit;
 import com.opentok.android.Session;
 import com.opentok.android.Stream;
 import com.opentok.android.Subscriber;
+import com.opentok.android.SubscriberKit;
 
 import java.util.ArrayList;
 
@@ -26,18 +27,54 @@ public class MultipartyActivity
         extends Activity
         implements  View.OnClickListener,
                     Session.SessionListener,
-                    Publisher.PublisherListener {
-    private static final String         LOGTAG = "[MultipartyActivity]";
-    private String                      _id;
-    private Assets                      _assets;
-    private ArrayList<RelativeLayout>   _subsrciberContainterLst;
-    private ArrayList<ProgressBar>      _subscriberSpinnerLst;
-    private RelativeLayout              _publisherContainer;
-    private Button                      _endCallBtn;
-    private Session                     _session;
-    private Publisher                   _publisher;
-    private ArrayList<Subscriber>       _subscriberLst;
-    private ArrayList<Stream>           _streamLst;
+                    Publisher.PublisherListener,
+                    Subscriber.VideoListener {
+    private static final String          LOGTAG = "[MultipartyActivity]";
+    private String                          _id;
+    private Assets                          _assets;
+    private ArrayList<SubscriberContainer>  _subsrciberLst;
+    private RelativeLayout                  _publisherContainer;
+    private Button                          _endCallBtn;
+    private Session                         _session;
+    private Publisher                       _publisher;
+
+    private static class SubscriberContainer {
+        private Subscriber      _subscriber;
+        private Stream          _stream;
+        private ProgressBar     _spinner;
+        private RelativeLayout  _container;
+
+        public SubscriberContainer(RelativeLayout container, ProgressBar spinner) {
+            _subscriber = null;
+            _stream     = null;
+            _spinner    = spinner;
+            _container  = container;
+        }
+
+        public Subscriber getSubscriber() {
+            return _subscriber;
+        }
+
+        public Stream getStream() {
+            return _stream;
+        }
+
+        public ProgressBar getSpinner() {
+            return _spinner;
+        }
+
+        public RelativeLayout getContainer() {
+            return _container;
+        }
+
+        public void setSubscriber(Subscriber subscriber) {
+            _subscriber = subscriber;
+        }
+
+        public void setStream(Stream stream) {
+            _stream = stream;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,49 +83,80 @@ public class MultipartyActivity
         // construct and/or assign members
         _id = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         _assets = new Assets(this);
-        _subsrciberContainterLst = new ArrayList<>();
-        _subsrciberContainterLst.add((RelativeLayout)findViewById(R.id.view_line1));
-        _subsrciberContainterLst.add((RelativeLayout)findViewById(R.id.view_line2));
-        _subsrciberContainterLst.add((RelativeLayout)findViewById(R.id.view_line3));
-        _subsrciberContainterLst.add((RelativeLayout)findViewById(R.id.view_line4));
-        _subscriberSpinnerLst = new ArrayList<>();
-        _subscriberSpinnerLst.add((ProgressBar)findViewById(R.id.line1_spinner));
-        _subscriberSpinnerLst.add((ProgressBar)findViewById(R.id.line2_spinner));
-        _subscriberSpinnerLst.add((ProgressBar)findViewById(R.id.line3_spinner));
-        _subscriberSpinnerLst.add((ProgressBar)findViewById(R.id.line4_spinner));
+        _subsrciberLst = new ArrayList<>();
+        _subsrciberLst.add(
+                new SubscriberContainer(
+                        (RelativeLayout)findViewById(R.id.view_line1),
+                        (ProgressBar)findViewById(R.id.line1_spinner)
+                )
+        );
+        _subsrciberLst.add(
+                new SubscriberContainer(
+                        (RelativeLayout)findViewById(R.id.view_line2),
+                        (ProgressBar)findViewById(R.id.line2_spinner)
+                )
+        );
+        _subsrciberLst.add(
+                new SubscriberContainer(
+                        (RelativeLayout) findViewById(R.id.view_line3),
+                        (ProgressBar) findViewById(R.id.line3_spinner)
+                )
+        );
+        _subsrciberLst.add(
+                new SubscriberContainer(
+                        (RelativeLayout)findViewById(R.id.view_line4),
+                        (ProgressBar)findViewById(R.id.line4_spinner)
+                )
+        );
         _publisherContainer = (RelativeLayout)findViewById(R.id.view_publisher);
         _endCallBtn = (Button)findViewById(R.id.btn_endcall);
-        _subscriberLst = new ArrayList<>();
-        _streamLst  = new ArrayList<>();
         // connect ui callbacks
         _endCallBtn.setOnClickListener(this);
+        // connect to session
+        _connectSession(_assets.getConfiguration());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        // TODO: pause session
+        if (null != _session) {
+            _session.onPause();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // TODO: resume session
+        if (null != _session) {
+            _session.onResume();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        // TODO: end session
+        if (isFinishing()) {
+            _endSession();
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_endcall:
-                // TODO: end session
+                _endSession();
+                System.exit(0);
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (_session != null) {
+            _session.disconnect();
+        }
+
+        super.onBackPressed();
     }
 
     @Override
@@ -112,18 +180,26 @@ public class MultipartyActivity
 
     @Override
     public void onStreamReceived(Session session, Stream stream) {
-        _streamLst.add(stream);
-        _subscribeStream(stream);
+        for (SubscriberContainer subscriber: _subsrciberLst) {
+            if (null == subscriber.getStream()) {
+                _subscribeStream(subscriber, stream);
+            }
+        }
+
     }
 
     @Override
     public void onStreamDropped(Session session, Stream stream) {
-       // TODO
+        for (SubscriberContainer subscriber: _subsrciberLst) {
+            if (subscriber.getStream().equals(stream)) {
+                _unsubscribeStream(subscriber);
+            }
+        }
     }
 
     @Override
     public void onError(Session session, OpentokError opentokError) {
-        // TODO
+        Log.i(LOGTAG, "OpenTok Session error:" + opentokError.getMessage());
     }
 
     @Override
@@ -138,7 +214,42 @@ public class MultipartyActivity
 
     @Override
     public void onError(PublisherKit publisherKit, OpentokError opentokError) {
-        // TODO
+        Log.i(LOGTAG, "OpenTok Publisher error:" + opentokError.getMessage());
+    }
+
+    @Override
+    public void onVideoDataReceived(SubscriberKit subscriberKit) {
+        for (SubscriberContainer subscriber: _subsrciberLst) {
+            if (subscriber.getStream().equals(subscriberKit.getStream())) {
+                _setupSubscriberView(subscriber);
+            }
+        }
+    }
+
+    @Override
+    public void onVideoDisabled(SubscriberKit subscriberKit, String s) {
+        Log.i(LOGTAG, "Video Disabled: " + s);
+    }
+
+    @Override
+    public void onVideoEnabled(SubscriberKit subscriberKit, String s) {
+        Log.i(LOGTAG, "Video Enabled: " + s);
+    }
+
+    @Override
+    public void onVideoDisableWarning(SubscriberKit subscriberKit) {
+        Log.i(
+                LOGTAG,
+                "Video may be disabled soon due to network quality degradation. Add UI handling here."
+        );
+    }
+
+    @Override
+    public void onVideoDisableWarningLifted(SubscriberKit subscriberKit) {
+        Log.i(
+                LOGTAG,
+                "Video may no longer be disabled as stream quality improved. Add UI handling here."
+        );
     }
 
     private void _connectSession(Configuration config) {
@@ -152,7 +263,8 @@ public class MultipartyActivity
     }
 
     private void _endSession() {
-        // TODO
+        if (null != _session)
+            _session = null;
     }
 
     private void _setupPublisherView(Publisher publisher) {
@@ -165,20 +277,34 @@ public class MultipartyActivity
         _publisherContainer.addView(publisher.getView(), layoutParams);
     }
 
-    private void _subscribeStream(Stream stream) {
+    private void _setupSubscriberView(SubscriberContainer subscriber) {
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(320, 240);
+        subscriber.getContainer().removeView(subscriber.getSubscriber().getView());
+        subscriber.getContainer().addView(subscriber.getSubscriber().getView(), layoutParams);
+        subscriber.getSubscriber().setStyle(
+                BaseVideoRenderer.STYLE_VIDEO_SCALE,
+                BaseVideoRenderer.STYLE_VIDEO_FILL
+        );
+    }
+
+    private void _subscribeStream(SubscriberContainer container, Stream stream) {
         Subscriber subscriber = new Subscriber(this, stream);
         subscriber.setVideoListener(this);
         _session.subscribe(subscriber);
-        _subscriberLst.add(subscriber);
+        container.setSubscriber(subscriber);
+        container.setStream(stream);
         // put up spinner
-        ProgressBar spinner = _subscriberSpinnerLst.get(_subscriberLst.size() - 1);
-        spinner.setVisibility(View.VISIBLE);
+        container.getSpinner().setVisibility(View.VISIBLE);
+    }
+
+    private void _unsubscribeStream(SubscriberContainer subscriber) {
+        subscriber.getContainer().removeView(subscriber.getSubscriber().getView());
+        subscriber.getSpinner().setVisibility(View.GONE);
+        subscriber.setStream(null);
     }
 
     private int _dpToPx(int dp) {
         double screenDensity = getResources().getDisplayMetrics().density;
         return (int) (screenDensity * (double) dp);
     }
-
-
 }
