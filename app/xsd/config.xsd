@@ -9,9 +9,10 @@
   <xs:element name="Configuration">
     <xs:complexType>
       <xs:sequence>
-	<xs:element name="SessionID" type="xs:string" />
-	<xs:element name="SessionToken" type="xs:string" />
-	<xs:element name="SessionKey" type="xs:string" />
+        <xs:element name="APIUrl" type="xs:string" />
+	    <xs:element name="SessionID" type="xs:string" />
+	    <xs:element name="SessionToken" type="xs:string" />
+	    <xs:element name="SessionKey" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

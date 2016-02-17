@@ -7,6 +7,8 @@ import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -27,10 +29,19 @@ public class Assets {
     public Configuration getConfiguration() {
         Configuration configuration = null;
         try {
-            InputStream inStrm = _ctx.getAssets().open(CONFIGURATION);
-            String jsonFile = IOUtils.toString(inStrm);
-            configuration = new Configuration(new JSONObject(jsonFile));
-            inStrm.close();
+            /* check if config file is on sd card */
+            File config = new File(_ctx.getExternalCacheDir(), CONFIGURATION);
+            if (config.exists()) {
+                InputStream inStrm = new FileInputStream(config);
+                String jsonFile = IOUtils.toString(inStrm);
+                configuration = new Configuration(new JSONObject(jsonFile));
+                inStrm.close();
+            } else {
+                InputStream inStrm = _ctx.getAssets().open(CONFIGURATION);
+                String jsonFile = IOUtils.toString(inStrm);
+                configuration = new Configuration(new JSONObject(jsonFile));
+                inStrm.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {

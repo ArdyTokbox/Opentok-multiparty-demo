@@ -9,8 +9,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import com.opentok.android.BaseVideoCapturer;
 import com.opentok.android.BaseVideoRenderer;
+import com.opentok.android.OpenTokConfig;
 import com.opentok.android.OpentokError;
 import com.opentok.android.Publisher;
 import com.opentok.android.PublisherKit;
@@ -19,6 +22,7 @@ import com.opentok.android.Stream;
 import com.opentok.android.Subscriber;
 import com.opentok.android.SubscriberKit;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 import demo.tokbox.com.multiparty.generated.Configuration;
@@ -29,7 +33,7 @@ public class MultipartyActivity
                     Session.SessionListener,
                     Publisher.PublisherListener,
                     Subscriber.VideoListener {
-    private static final String          LOGTAG = "[MultipartyActivity]";
+    private static final String            LOGTAG = "[MultipartyActivity]";
     private String                          _id;
     private Assets                          _assets;
     private ArrayList<SubscriberContainer>  _subsrciberLst;
@@ -81,41 +85,47 @@ public class MultipartyActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multiparty);
         // construct and/or assign members
-        _id = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-        _assets = new Assets(this);
-        _subsrciberLst = new ArrayList<>();
-        _subsrciberLst.add(
-                new SubscriberContainer(
-                        (RelativeLayout)findViewById(R.id.view_line1),
-                        (ProgressBar)findViewById(R.id.line1_spinner)
-                )
-        );
-        _subsrciberLst.add(
-                new SubscriberContainer(
-                        (RelativeLayout)findViewById(R.id.view_line2),
-                        (ProgressBar)findViewById(R.id.line2_spinner)
-                )
-        );
-        _subsrciberLst.add(
-                new SubscriberContainer(
-                        (RelativeLayout) findViewById(R.id.view_line3),
-                        (ProgressBar) findViewById(R.id.line3_spinner)
-                )
-        );
-        _subsrciberLst.add(
-                new SubscriberContainer(
-                        (RelativeLayout)findViewById(R.id.view_line4),
-                        (ProgressBar)findViewById(R.id.line4_spinner)
-                )
-        );
-        _publisherContainer = (RelativeLayout)findViewById(R.id.view_publisher);
-        _endCallBtn = (Button)findViewById(R.id.btn_endcall);
-        // connect ui callbacks
-        _endCallBtn.setOnClickListener(this);
-        // connect to session
-        _connectSession(_assets.getConfiguration());
+        OpenTokConfig.enableWebRTCLogs(true);
+        try {
+            _id = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+            _assets = new Assets(this);
+            OpenTokConfig.setAPIRootURL(_assets.getConfiguration().getAPIUrl(), false);
+            _subsrciberLst = new ArrayList<>();
+            _subsrciberLst.add(
+                    new SubscriberContainer(
+                            (RelativeLayout) findViewById(R.id.view_line1),
+                            (ProgressBar) findViewById(R.id.line1_spinner)
+                    )
+            );
+            _subsrciberLst.add(
+                    new SubscriberContainer(
+                            (RelativeLayout) findViewById(R.id.view_line2),
+                            (ProgressBar) findViewById(R.id.line2_spinner)
+                    )
+            );
+            _subsrciberLst.add(
+                    new SubscriberContainer(
+                            (RelativeLayout) findViewById(R.id.view_line3),
+                            (ProgressBar) findViewById(R.id.line3_spinner)
+                    )
+            );
+            _subsrciberLst.add(
+                    new SubscriberContainer(
+                            (RelativeLayout) findViewById(R.id.view_line4),
+                            (ProgressBar) findViewById(R.id.line4_spinner)
+                    )
+            );
+            _publisherContainer = (RelativeLayout) findViewById(R.id.view_publisher);
+            _endCallBtn = (Button) findViewById(R.id.btn_endcall);
+            // connect ui callbacks
+            _endCallBtn.setOnClickListener(this);
+            // connect to session
+            _connectSession(_assets.getConfiguration());
+        } catch (MalformedURLException e) {
+            Log.d(LOGTAG, "EXCEPTION: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
     }
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -162,8 +172,9 @@ public class MultipartyActivity
     @Override
     public void onConnected(Session session) {
         Log.i(LOGTAG, "Connected to OpenTok Session");
-        _publisher = new Publisher(this, "MultipartyActivity-demo: publisher-" + _id);
+        _publisher = new Publisher(this, "MultipartyActivity-demo: publisher-" + _id, true, true);
         _publisher.setPublisherListener(this);
+
         _setupPublisherView(_publisher);
         _session.publish(_publisher);
     }
@@ -205,7 +216,8 @@ public class MultipartyActivity
 
     @Override
     public void onStreamCreated(PublisherKit publisherKit, Stream stream) {
-        // TODO
+        Toast.makeText(this, "Publisher Stream Id: " +stream.getStreamId(), Toast.LENGTH_LONG).show();
+        Log.d(LOGTAG, "Publisher Stream Id: " + stream.getStreamId());
     }
 
     @Override
