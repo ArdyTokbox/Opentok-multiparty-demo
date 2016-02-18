@@ -1,6 +1,8 @@
 package demo.tokbox.com.multiparty;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.style.SubscriptSpan;
@@ -43,6 +45,7 @@ public class MultipartyActivity
     private Button                          _endCallBtn;
     private Session                         _session;
     private Publisher                       _publisher;
+    private Configuration                   _config;
 
     private static class SubscriberContainer {
         private Subscriber      _subscriber;
@@ -90,7 +93,11 @@ public class MultipartyActivity
         try {
             _id = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
             _assets = new Assets(this);
-            OpenTokConfig.setAPIRootURL(_assets.getConfiguration().getAPIUrl(), false);
+            _config = _assets.getConfiguration();
+            OpenTokConfig.setAPIRootURL(_config.getAPIUrl(), false);
+            if (null != _config.getForceSimulcast()) {
+                OpenTokConfig.enableSimulcast(_config.getForceSimulcast());
+            }
             _subsrciberLst = new ArrayList<>();
             _subsrciberLst.add(
                     new SubscriberContainer(
@@ -121,7 +128,7 @@ public class MultipartyActivity
             // connect ui callbacks
             _endCallBtn.setOnClickListener(this);
             // connect to session
-            _connectSession(_assets.getConfiguration());
+            _connectSession(_config);
         } catch (MalformedURLException e) {
             Log.d(LOGTAG, "EXCEPTION: " + e.getLocalizedMessage());
             e.printStackTrace();
@@ -184,7 +191,9 @@ public class MultipartyActivity
         _publisher = new Publisher(
                 this,
                 "MultipartyActivity-demo: publisher-" + _id,
-                configResMapping.get(_assets.getConfiguration().getPublisherResolution()),
+                (null != _config.getPublisherResolution())
+                        ? configResMapping.get(_config.getPublisherResolution())
+                        : Publisher.CameraCaptureResolution.MEDIUM,
                 Publisher.CameraCaptureFrameRate.FPS_30
         );
         _publisher.setPublisherListener(this);

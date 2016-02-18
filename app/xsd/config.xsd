@@ -22,7 +22,7 @@
               <xs:element name="SessionID" type="xs:string" />
               <xs:element name="SessionToken" type="xs:string" />
               <xs:element name="SessionKey" type="xs:string" />
-              <xs:element name="ForceSimulcast" type="xs:boolean" default="false" minOccurs="0"/>
+              <xs:element name="ForceSimulcast" type="xs:boolean" minOccurs="0"/>
           </xs:sequence>
       </xs:complexType>
   </xs:element>
