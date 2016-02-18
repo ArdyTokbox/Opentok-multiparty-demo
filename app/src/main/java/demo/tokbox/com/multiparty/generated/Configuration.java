@@ -14,9 +14,12 @@ import demo.tokbox.com.multiparty.generated.JSONArrayAdapter;
 import org.apache.commons.codec.DecoderException;
 
 public class Configuration implements Marshalable {
+	private String _PublisherResolution;
 	private String _SessionToken;
-	private String _SessionID;
+	private String _APIUrl;
 	private String _SessionKey;
+	private Boolean _ForceSimulcast;
+	private String _SessionID;
 
 	public Configuration() {
 	}
@@ -26,20 +29,42 @@ public class Configuration implements Marshalable {
 	}
 
 	public Configuration(JSONObjectAdapter jObj) throws JSONException, DecoderException {
+		if (!jObj.has("PublisherResolution"))
+			_PublisherResolution = null;
+		else
+			_PublisherResolution= jObj.getString("PublisherResolution");
 		if (!jObj.has("SessionToken"))
 			_SessionToken = null;
 		else
 			_SessionToken= jObj.getString("SessionToken");
-		if (!jObj.has("SessionID"))
-			_SessionID = null;
+		if (!jObj.has("APIUrl"))
+			_APIUrl = null;
 		else
-			_SessionID= jObj.getString("SessionID");
+			_APIUrl= jObj.getString("APIUrl");
 		if (!jObj.has("SessionKey"))
 			_SessionKey = null;
 		else
 			_SessionKey= jObj.getString("SessionKey");
+		if (!jObj.has("ForceSimulcast"))
+			_ForceSimulcast = null;
+		else
+			_ForceSimulcast= jObj.getBoolean("ForceSimulcast");
+		if (!jObj.has("SessionID"))
+			_SessionID = null;
+		else
+			_SessionID= jObj.getString("SessionID");
 	}
 
+	/**
+	 * Sets the value of the PublisherResolutionVal property.
+	 *
+	 * @param PublisherResolutionVal
+	 *     allowed object is
+	 *     {@link String}
+	 */
+	public void setPublisherResolution(String PublisherResolutionVal) {
+		_PublisherResolution = PublisherResolutionVal;
+	}
 	/**
 	 * Sets the value of the SessionTokenVal property.
 	 *
@@ -51,14 +76,14 @@ public class Configuration implements Marshalable {
 		_SessionToken = SessionTokenVal;
 	}
 	/**
-	 * Sets the value of the SessionIDVal property.
+	 * Sets the value of the APIUrlVal property.
 	 *
-	 * @param SessionIDVal
+	 * @param APIUrlVal
 	 *     allowed object is
 	 *     {@link String}
 	 */
-	public void setSessionID(String SessionIDVal) {
-		_SessionID = SessionIDVal;
+	public void setAPIUrl(String APIUrlVal) {
+		_APIUrl = APIUrlVal;
 	}
 	/**
 	 * Sets the value of the SessionKeyVal property.
@@ -71,6 +96,36 @@ public class Configuration implements Marshalable {
 		_SessionKey = SessionKeyVal;
 	}
 	/**
+	 * Sets the value of the ForceSimulcastVal property.
+	 *
+	 * @param ForceSimulcastVal
+	 *     allowed object is
+	 *     {@link Boolean}
+	 */
+	public void setForceSimulcast(Boolean ForceSimulcastVal) {
+		_ForceSimulcast = ForceSimulcastVal;
+	}
+	/**
+	 * Sets the value of the SessionIDVal property.
+	 *
+	 * @param SessionIDVal
+	 *     allowed object is
+	 *     {@link String}
+	 */
+	public void setSessionID(String SessionIDVal) {
+		_SessionID = SessionIDVal;
+	}
+	/**
+	 * Gets the value of the PublisherResolution property.
+	 *
+	 * @return
+	 *     possible object is
+	 *     {@link String}
+	 */
+	public String getPublisherResolution() {
+		return _PublisherResolution;
+	}
+	/**
 	 * Gets the value of the SessionToken property.
 	 *
 	 * @return
@@ -81,14 +136,14 @@ public class Configuration implements Marshalable {
 		return _SessionToken;
 	}
 	/**
-	 * Gets the value of the SessionID property.
+	 * Gets the value of the APIUrl property.
 	 *
 	 * @return
 	 *     possible object is
 	 *     {@link String}
 	 */
-	public String getSessionID() {
-		return _SessionID;
+	public String getAPIUrl() {
+		return _APIUrl;
 	}
 	/**
 	 * Gets the value of the SessionKey property.
@@ -100,14 +155,40 @@ public class Configuration implements Marshalable {
 	public String getSessionKey() {
 		return _SessionKey;
 	}
+	/**
+	 * Gets the value of the ForceSimulcast property.
+	 *
+	 * @return
+	 *     possible object is
+	 *     {@link Boolean}
+	 */
+	public Boolean getForceSimulcast() {
+		return _ForceSimulcast;
+	}
+	/**
+	 * Gets the value of the SessionID property.
+	 *
+	 * @return
+	 *     possible object is
+	 *     {@link String}
+	 */
+	public String getSessionID() {
+		return _SessionID;
+	}
 	public JSONObject marshal() throws JSONException {
 		JSONObjectAdapter retObj = new JSONObjectAdapter(new JSONObject());
+		if (null != _PublisherResolution && 0 < _PublisherResolution.length())
+			retObj.put("PublisherResolution", _PublisherResolution);
 		if (null != _SessionToken && 0 < _SessionToken.length())
 			retObj.put("SessionToken", _SessionToken);
-		if (null != _SessionID && 0 < _SessionID.length())
-			retObj.put("SessionID", _SessionID);
+		if (null != _APIUrl && 0 < _APIUrl.length())
+			retObj.put("APIUrl", _APIUrl);
 		if (null != _SessionKey && 0 < _SessionKey.length())
 			retObj.put("SessionKey", _SessionKey);
+		if (null != _ForceSimulcast )
+			retObj.put("ForceSimulcast", _ForceSimulcast);
+		if (null != _SessionID && 0 < _SessionID.length())
+			retObj.put("SessionID", _SessionID);
 		return retObj.getJSONObject();
 	}
 }

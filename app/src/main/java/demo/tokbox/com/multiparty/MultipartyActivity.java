@@ -87,7 +87,6 @@ public class MultipartyActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multiparty);
         // construct and/or assign members
-        OpenTokConfig.enableWebRTCLogs(true);
         try {
             _id = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
             _assets = new Assets(this);
