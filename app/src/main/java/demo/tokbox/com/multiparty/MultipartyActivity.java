@@ -24,6 +24,8 @@ import com.opentok.android.SubscriberKit;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import demo.tokbox.com.multiparty.generated.Configuration;
 
@@ -172,7 +174,20 @@ public class MultipartyActivity
     @Override
     public void onConnected(Session session) {
         Log.i(LOGTAG, "Connected to OpenTok Session");
-        _publisher = new Publisher(this, "MultipartyActivity-demo: publisher-" + _id, true, true);
+        Map<String, Publisher.CameraCaptureResolution> configResMapping =
+                new HashMap<String, Publisher.CameraCaptureResolution>() {
+            {
+                put("LOW", Publisher.CameraCaptureResolution.LOW);
+                put("MEDIUM", Publisher.CameraCaptureResolution.MEDIUM);
+                put("HIGH", Publisher.CameraCaptureResolution.HIGH);
+            }
+        };
+        _publisher = new Publisher(
+                this,
+                "MultipartyActivity-demo: publisher-" + _id,
+                configResMapping.get(_assets.getConfiguration().getPublisherResolution()),
+                Publisher.CameraCaptureFrameRate.FPS_30
+        );
         _publisher.setPublisherListener(this);
 
         _setupPublisherView(_publisher);
@@ -216,13 +231,17 @@ public class MultipartyActivity
 
     @Override
     public void onStreamCreated(PublisherKit publisherKit, Stream stream) {
-        Toast.makeText(this, "Publisher Stream Id: " +stream.getStreamId(), Toast.LENGTH_LONG).show();
-        Log.d(LOGTAG, "Publisher Stream Id: " + stream.getStreamId());
+        Toast.makeText(
+                this,
+                "Publisher Stream Id: " + stream.getStreamId(),
+                Toast.LENGTH_LONG
+        ).show();
+        Log.d(LOGTAG, "Publisher Stream Id: " + stream.getStreamId() + " Created");
     }
 
     @Override
     public void onStreamDestroyed(PublisherKit publisherKit, Stream stream) {
-        // TODO
+        Log.d(LOGTAG, "Publisher Stream Id: " + stream.getStreamId() + " Destroyed");
     }
 
     @Override

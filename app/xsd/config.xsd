@@ -1,19 +1,29 @@
 <?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:annotation>
-    <xs:documentation>
-      Schema to define json configuration data. This is used
-      with the xsd-tools(GNU) tool to auto-generate json bindings for Android.
-    </xs:documentation>
-  </xs:annotation>
+    <xs:annotation>
+        <xs:documentation>
+            Schema to define json configuration data. This is used
+            with the xsd-tools(GNU) tool to auto-generate json bindings for Android.
+        </xs:documentation>
+    </xs:annotation>
   <xs:element name="Configuration">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="APIUrl" type="xs:string" />
-	    <xs:element name="SessionID" type="xs:string" />
-	    <xs:element name="SessionToken" type="xs:string" />
-	    <xs:element name="SessionKey" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
+      <xs:complexType>
+          <xs:sequence>
+              <xs:element name="APIUrl" type="xs:string" />
+              <xs:element name="PublisherResolution" default="MEDUIM" minOccurs="0">
+                  <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                          <xs:enumeration value="LOW" />
+                          <xs:enumeration value="MEDIUM" />
+                          <xs:enumeration value="HIGH" />
+                      </xs:restriction>
+                  </xs:simpleType>
+              </xs:element>
+              <xs:element name="SessionID" type="xs:string" />
+              <xs:element name="SessionToken" type="xs:string" />
+              <xs:element name="SessionKey" type="xs:string" />
+              <xs:element name="ForceSimulcast" type="xs:boolean" default="false" minOccurs="0"/>
+          </xs:sequence>
+      </xs:complexType>
   </xs:element>
 </xs:schema>
