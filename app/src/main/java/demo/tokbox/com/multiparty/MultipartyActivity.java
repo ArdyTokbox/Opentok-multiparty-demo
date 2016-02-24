@@ -1,12 +1,8 @@
 package demo.tokbox.com.multiparty;
 
-import android.Manifest;
-import android.app.ActionBar;
 import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.style.SubscriptSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -16,7 +12,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.opentok.android.BaseVideoCapturer;
 import com.opentok.android.BaseVideoRenderer;
 import com.opentok.android.OpenTokConfig;
 import com.opentok.android.OpentokError;
