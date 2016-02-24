@@ -38,6 +38,7 @@ public class MultipartyActivity
         extends Activity
         implements  View.OnClickListener,
                     Session.SessionListener,
+                    Session.ReconnectionListener,
                     Publisher.PublisherListener,
                     Subscriber.VideoListener {
     private static final String            LOGTAG = "[MultipartyActivity]";
@@ -277,6 +278,16 @@ public class MultipartyActivity
         );
     }
 
+    @Override
+    public void onReconnecting(Session session) {
+        Log.i(LOGTAG, "Session Reconnecting...");
+    }
+
+    @Override
+    public void onReconnected(Session session) {
+        Log.i(LOGTAG, "Session Reconnected!");
+    }
+
     private void _connectSession(Configuration config) {
         _session = new Session(
                 this,
@@ -284,6 +295,7 @@ public class MultipartyActivity
                 config.getSessionID()
         );
         _session.setSessionListener(this);
+        _session.setReconnectionListener(this);
         _session.connect(config.getSessionToken());
     }
 
