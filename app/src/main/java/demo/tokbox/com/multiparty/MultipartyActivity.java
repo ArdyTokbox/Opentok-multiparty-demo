@@ -1,6 +1,7 @@
 package demo.tokbox.com.multiparty;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -9,6 +10,8 @@ import android.text.style.SubscriptSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -39,9 +42,9 @@ public class MultipartyActivity
                     Subscriber.VideoListener {
     private static final String            LOGTAG = "[MultipartyActivity]";
     private String                          _id;
-    private Assets                          _assets;
     private ArrayList<SubscriberContainer>  _subsrciberLst;
-    private RelativeLayout                  _publisherContainer;
+    private LinearLayout                    _subscriberContainer;
+    private FrameLayout                     _publisherContainer;
     private Button                          _endCallBtn;
     private Session                         _session;
     private Publisher                       _publisher;
@@ -90,50 +93,26 @@ public class MultipartyActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multiparty);
         // construct and/or assign members
+        _id = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        _subsrciberLst = new ArrayList<>();
+        _subscriberContainer = (LinearLayout)findViewById(R.id.view_subscriber);
+        _publisherContainer = (FrameLayout)findViewById(R.id.view_publisher);
+        _endCallBtn = (Button)findViewById(R.id.btn_endcall);
+        _config = (new Assets(this)).getConfiguration();
+        // connect UI
+        _endCallBtn.setOnClickListener(this);
+        // connect to session
         try {
-            _id = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-            _assets = new Assets(this);
-            _config = _assets.getConfiguration();
             OpenTokConfig.setAPIRootURL(_config.getAPIUrl(), false);
             if (null != _config.getForceSimulcast()) {
                 OpenTokConfig.enableSimulcast(_config.getForceSimulcast());
             }
-            _subsrciberLst = new ArrayList<>();
-            _subsrciberLst.add(
-                    new SubscriberContainer(
-                            (RelativeLayout) findViewById(R.id.view_line1),
-                            (ProgressBar) findViewById(R.id.line1_spinner)
-                    )
-            );
-            _subsrciberLst.add(
-                    new SubscriberContainer(
-                            (RelativeLayout) findViewById(R.id.view_line2),
-                            (ProgressBar) findViewById(R.id.line2_spinner)
-                    )
-            );
-            _subsrciberLst.add(
-                    new SubscriberContainer(
-                            (RelativeLayout) findViewById(R.id.view_line3),
-                            (ProgressBar) findViewById(R.id.line3_spinner)
-                    )
-            );
-            _subsrciberLst.add(
-                    new SubscriberContainer(
-                            (RelativeLayout) findViewById(R.id.view_line4),
-                            (ProgressBar) findViewById(R.id.line4_spinner)
-                    )
-            );
-            _publisherContainer = (RelativeLayout) findViewById(R.id.view_publisher);
-            _endCallBtn = (Button) findViewById(R.id.btn_endcall);
-            // connect ui callbacks
-            _endCallBtn.setOnClickListener(this);
-            // connect to session
             _connectSession(_config);
         } catch (MalformedURLException e) {
-            Log.d(LOGTAG, "EXCEPTION: " + e.getLocalizedMessage());
-            e.printStackTrace();
+                Log.d(LOGTAG, "EXCEPTION: " + e.getLocalizedMessage());
+                e.printStackTrace();
+            }
         }
-    }
     @Override
     protected void onPause() {
         super.onPause();
@@ -197,7 +176,6 @@ public class MultipartyActivity
                 Publisher.CameraCaptureFrameRate.FPS_30
         );
         _publisher.setPublisherListener(this);
-
         _setupPublisherView(_publisher);
         _session.publish(_publisher);
     }
@@ -214,21 +192,27 @@ public class MultipartyActivity
 
     @Override
     public void onStreamReceived(Session session, Stream stream) {
-        for (SubscriberContainer subscriber: _subsrciberLst) {
-            if (null == subscriber.getStream()) {
-                _subscribeStream(subscriber, stream);
-                break;
-            }
-        }
-
+        // create subscriber view
+        SubscriberContainer subscriber = _createSubscriberView();
+        _subsrciberLst.add(subscriber);
+        _subscriberContainer.addView(subscriber.getContainer());
+        // subscribe to stream
+        _subscribeStream(subscriber, stream);
     }
 
     @Override
     public void onStreamDropped(Session session, Stream stream) {
-        for (SubscriberContainer subscriber: _subsrciberLst) {
+        SubscriberContainer removeSubscriber = null;
+        for (SubscriberContainer subscriber : _subsrciberLst) {
             if (null != subscriber.getStream() && subscriber.getStream().equals(stream)) {
                 _unsubscribeStream(subscriber);
+                _subscriberContainer.removeView(subscriber.getContainer());
+                removeSubscriber = subscriber;
+                break;
             }
+        }
+        if (null != removeSubscriber) {
+            _subsrciberLst.remove(removeSubscriber);
         }
     }
 
@@ -262,7 +246,7 @@ public class MultipartyActivity
         for (SubscriberContainer subscriber: _subsrciberLst) {
             if (null != subscriber.getStream() &&
                     subscriber.getStream().equals(subscriberKit.getStream())) {
-                _setupSubscriberView(subscriber);
+                subscriber.getSpinner().setVisibility(View.GONE);
             }
         }
     }
@@ -318,22 +302,32 @@ public class MultipartyActivity
         _publisherContainer.addView(publisher.getView(), layoutParams);
     }
 
-    private void _setupSubscriberView(SubscriberContainer subscriber) {
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(320, 240);
-        subscriber.getContainer().removeView(subscriber.getSubscriber().getView());
-        subscriber.getContainer().addView(subscriber.getSubscriber().getView(), layoutParams);
-        subscriber.getSubscriber().setStyle(
-                BaseVideoRenderer.STYLE_VIDEO_SCALE,
-                BaseVideoRenderer.STYLE_VIDEO_FILL
-        );
+    private SubscriberContainer _createSubscriberView() {
+        // construct layout
+        RelativeLayout subscriberLayout = new RelativeLayout(this);
+        ProgressBar subscriberSpinner = new ProgressBar(this);
+        SubscriberContainer container = new SubscriberContainer(subscriberLayout, subscriberSpinner);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(640, 480);
+        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
+        // wire up view
+        subscriberLayout.addView(subscriberSpinner, layoutParams);
+        return container;
     }
 
     private void _subscribeStream(SubscriberContainer container, Stream stream) {
         Subscriber subscriber = new Subscriber(this, stream);
+        subscriber.setStyle(
+                BaseVideoRenderer.STYLE_VIDEO_SCALE,
+                BaseVideoRenderer.STYLE_VIDEO_FILL
+        );
         subscriber.setVideoListener(this);
         _session.subscribe(subscriber);
         container.setSubscriber(subscriber);
         container.setStream(stream);
+        // add subsriber to container view
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(640, 480);
+        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
+        container.getContainer().addView(subscriber.getView(), layoutParams);
         // put up spinner
         container.getSpinner().setVisibility(View.VISIBLE);
     }
