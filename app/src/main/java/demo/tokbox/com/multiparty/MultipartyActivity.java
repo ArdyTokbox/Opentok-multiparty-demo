@@ -163,6 +163,7 @@ public class MultipartyActivity
                 put("HIGH", Publisher.CameraCaptureResolution.HIGH);
             }
         };
+        Publisher.CameraCaptureResolution res = configResMapping.get(_config.getPublisherResolution());
         _publisher = new Publisher(
                 this,
                 "MultipartyActivity-demo: publisher-" + _id,
@@ -301,7 +302,7 @@ public class MultipartyActivity
 
     private void _setupPublisherView(Publisher publisher) {
         publisher.setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE, BaseVideoRenderer.STYLE_VIDEO_FILL);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(320, 240);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(800, 600);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
         layoutParams.bottomMargin   = _dpToPx(8);
