@@ -17,8 +17,8 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
-        flatDir {
-            dirs 'libs'
+        maven {
+            url  "http://tokbox.bintray.com/maven"
         }
     }
 }

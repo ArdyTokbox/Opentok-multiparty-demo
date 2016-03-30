@@ -44,7 +44,7 @@ android {
 }
 
 dependencies {
-    compile(name:'opentok-android-sdk-webrtc-release', ext:'aar')
+    compile 'com.opentok.android:opentok-android-sdk-preview:2.9.0-preview-1659'
     compile 'commons-codec:commons-codec:1.8'
     compile 'org.apache.commons:commons-io:1.3.2'
     testCompile 'junit:junit:4.12'
