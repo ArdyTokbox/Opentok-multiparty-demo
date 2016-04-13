@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -31,8 +32,7 @@ import demo.tokbox.com.multiparty.generated.Configuration;
 
 public class MultipartyActivity
         extends Activity
-        implements  View.OnClickListener,
-                    Session.SessionListener,
+        implements  Session.SessionListener,
                     Session.ReconnectionListener,
                     Publisher.PublisherListener,
                     Subscriber.VideoListener {
@@ -41,7 +41,6 @@ public class MultipartyActivity
     private ArrayList<SubscriberContainer>  _subsrciberLst;
     private LinearLayout                    _subscriberContainer;
     private FrameLayout                     _publisherContainer;
-    private Button                          _endCallBtn;
     private Session                         _session;
     private Publisher                       _publisher;
     private Configuration                   _config;
@@ -93,10 +92,8 @@ public class MultipartyActivity
         _subsrciberLst = new ArrayList<>();
         _subscriberContainer = (LinearLayout)findViewById(R.id.view_subscriber);
         _publisherContainer = (FrameLayout)findViewById(R.id.view_publisher);
-        _endCallBtn = (Button)findViewById(R.id.btn_endcall);
         _config = (new Assets(this)).getConfiguration();
         // connect UI
-        _endCallBtn.setOnClickListener(this);
         // connect to session
         try {
             OpenTokConfig.setAPIRootURL(_config.getAPIUrl(), false);
@@ -133,12 +130,22 @@ public class MultipartyActivity
         }
     }
 
-    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_endcall:
                 _endSession();
                 System.exit(0);
+                break;
+            case R.id.btn_mute: {
+                boolean muteState = _publisher.getPublishAudio();
+                ((ImageButton) findViewById(R.id.btn_mute)).setImageResource(
+                        (muteState ? R.mipmap.mute_pub : R.mipmap.unmute_pub)
+                );
+                _publisher.setPublishAudio(!muteState);
+                break;
+            }
+            case R.id.btn_camera:
+                _publisher.cycleCamera();
                 break;
         }
     }
@@ -302,7 +309,10 @@ public class MultipartyActivity
 
     private void _setupPublisherView(Publisher publisher) {
         publisher.setStyle(BaseVideoRenderer.STYLE_VIDEO_SCALE, BaseVideoRenderer.STYLE_VIDEO_FILL);
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(800, 600);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+                _publisherContainer.getWidth(),
+                _publisherContainer.getHeight()
+        );
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
         layoutParams.bottomMargin   = _dpToPx(8);
