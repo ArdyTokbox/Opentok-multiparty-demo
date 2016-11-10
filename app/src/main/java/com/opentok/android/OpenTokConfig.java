@@ -23,8 +23,8 @@ public class OpenTokConfig {
         setAPIRootURLNative(url.getHost(), ssl, port, rumorSSL);
     }
 
-    public static void enableSimulcast(boolean enable) {
-        setPublisherVGASimulcastNative(enable);
+    public static void enableSimulcast(PublisherKit publisher, boolean enable) {
+        setPublisherVGASimulcastNative(publisher, enable);
     }
 
     public static void enableWebRTCLogs(boolean enable) {
@@ -43,7 +43,7 @@ public class OpenTokConfig {
     private static native void setJNILogsNative(boolean jniLogs);
     private static native void setWebRTCLogsNative(boolean webrtcLogs);
     private static native void setAPIRootURLNative(String host, boolean ssl, int port, boolean rumorSSL);
-    private static native void setPublisherVGASimulcastNative(boolean enable);
+    private static native void setPublisherVGASimulcastNative(PublisherKit publisher, boolean enable);
 
     static {
         System.loadLibrary("opentok");

@@ -97,9 +97,6 @@ public class MultipartyActivity
         // connect to session
         try {
             OpenTokConfig.setAPIRootURL(_config.getAPIUrl(), false);
-            if (null != _config.getForceSimulcast()) {
-                OpenTokConfig.enableSimulcast(_config.getForceSimulcast());
-            }
             _connectSession(_config);
         } catch (MalformedURLException e) {
                 Log.d(LOGTAG, "EXCEPTION: " + e.getLocalizedMessage());
@@ -179,6 +176,9 @@ public class MultipartyActivity
                         : Publisher.CameraCaptureResolution.MEDIUM,
                 Publisher.CameraCaptureFrameRate.FPS_30
         );
+        if (null != _config.getForceSimulcast()) {
+            OpenTokConfig.enableSimulcast(_publisher, _config.getForceSimulcast());
+        }
         _publisher.setPublisherListener(this);
         _setupPublisherView(_publisher);
         _session.publish(_publisher);
